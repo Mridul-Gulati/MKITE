@@ -8,8 +8,7 @@ import math
 import datetime
 from streamlit_extras.switch_page_button import switch_page
 # secrets = toml.load('secrets.toml')
-if "secrets" not in st.session_state:
-    st.session_state.secrets = st.secrets
+# st.secrets is always available globally — no need to store in session_state
 # st.set_page_config(page_title="ETFDash", page_icon="📈", layout="wide")
 page_config_set = False
 
@@ -199,19 +198,19 @@ if 'all_data' not in st.session_state:
 if 'user' not in st.session_state:
     st.session_state.user = 0
 if user == 'Amit':
-    all_data = fetch_data_from_google_sheets(st.session_state.secrets)
+    all_data = fetch_data_from_google_sheets(st.secrets)
     st.session_state.all_data = all_data
     st.session_state.user = 'Amit'
 elif user == 'Deepti':
-    all_data_d = fetch_data_from_google_sheets_d(st.session_state.secrets)
+    all_data_d = fetch_data_from_google_sheets_d(st.secrets)
     st.session_state.all_data = all_data_d
     st.session_state.user = 'Deepti'
 elif user == 'Mridul':
-    all_data_m = fetch_data_from_google_sheets_m(st.session_state.secrets)
+    all_data_m = fetch_data_from_google_sheets_m(st.secrets)
     st.session_state.all_data = all_data_m
     st.session_state.user = 'Mridul'
 elif user == 'Hemank':
-    all_data_h = fetch_data_from_google_sheets_h(st.session_state.secrets)
+    all_data_h = fetch_data_from_google_sheets_h(st.secrets)
     st.session_state.all_data = all_data_h
     st.session_state.user = 'Hemank'
 
@@ -245,7 +244,7 @@ if user:
                 up_df['Qty.'] = up_df['Qty.'].str.replace(',', '').astype(float) if up_df['Qty.'].dtype == 'object' else up_df['Qty.']
                 up_df['Buy Value'] = up_df['Price'] * up_df['Qty.']
                 up_df['Age'] = (datetime.datetime.now() - pd.to_datetime(up_df['Date'])).dt.days
-                up_df['CMP'] = round(get_cmp_price(st.session_state.secrets["connections"]["gsheets"]["worksheets"][stock]),2)
+                up_df['CMP'] = round(get_cmp_price(st.secrets["connections"]["gsheets"]["worksheets"][stock]),2)
                 up_df['Current Value'] = up_df['Qty.'] * up_df['CMP']
                 up_df['Gain%'] = round(((up_df['Current Value'] - up_df['Buy Value']) / up_df['Buy Value']) * 100,2)
                 up_df['Amount'] = up_df['Current Value'] - up_df['Buy Value']
@@ -254,7 +253,7 @@ if user:
                     etf_rows = filtered_rows[filtered_rows['ETF'] == etf_name]
                     etf_rows.iloc[1:, 3] = ''  # Set ETF name to empty string for all rows except the first
                     resultant_df = pd.concat([resultant_df, etf_rows], ignore_index=True)
-                cmp = get_cmp_price(st.session_state.secrets["connections"]["gsheets"]["worksheets"][stock])
+                cmp = get_cmp_price(st.secrets["connections"]["gsheets"]["worksheets"][stock])
                 # total_value =  ((st.session_state.all_data[stock]['Qty.'].str.replace(',','').astype(float)) * (st.session_state.all_data[stock]['Price']).astype(float)).sum() if not st.session_state.all_data[stock].empty else 0
                 total_value =  ((st.session_state.all_data[stock]['Qty.']) * (st.session_state.all_data[stock]['Price']).astype(float)).sum() if not st.session_state.all_data[stock].empty else 0
                 total_invested += total_value
